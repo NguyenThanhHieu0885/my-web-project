@@ -1,10 +1,23 @@
-# Bỏ qua các thư mục thư viện nặng
-/backend/vendor/
-/frontend/node_modules/
-
-# Bỏ qua các file môi trường chứa mật khẩu
-.env
-
-# Bỏ qua file hệ thống
+# --- Bỏ qua rác hệ thống ---
 .DS_Store
 Thumbs.db
+
+# --- Bỏ qua file môi trường (Chứa mật khẩu - RẤT QUAN TRỌNG) ---
+.env
+**/.env
+
+# --- Bỏ qua thư viện Backend (Laravel/PHP) ---
+/backend/vendor/
+/backend/storage/*.key
+
+# --- Bỏ qua thư viện Frontend (React/Node) ---
+/frontend/node_modules/
+/frontend/build/
+/frontend/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Bỏ qua thư mục IDE (VS Code, JetBrains) ---
+.idea/
+.vscode/
