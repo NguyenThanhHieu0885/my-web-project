@@ -1,26 +1,10 @@
-FROM php:8.2-fpm
+# Sử dụng Image chính chủ của Composer
+# Lý do: Image này đã CÓ SẴN PHP, Extension MySQL, Git, Zip...
+# Bạn không cần chạy lệnh cài đặt nào thêm -> Tránh tuyệt đối lỗi mạng.
+FROM composer:2
 
-# Cài đặt các dependencies cần thiết
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
+# Đặt thư mục làm việc là /app (Mặc định của image này)
+WORKDIR /app
 
-# Cài đặt PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
-
-# Cài đặt Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Set working directory
-WORKDIR /var/www
-
-# Copy application files
-COPY . .
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www
+# Lệnh giữ cho container chạy (Khởi động Laravel Server ở cổng 8000)
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

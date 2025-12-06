@@ -1,23 +1,12 @@
-# --- Bỏ qua rác hệ thống ---
+# --- Vẫn chặn file rác hệ thống ---
 .DS_Store
 Thumbs.db
 
-# --- Bỏ qua file môi trường (Chứa mật khẩu - RẤT QUAN TRỌNG) ---
-.env
-**/.env
-
-# --- Bỏ qua thư viện Backend (Laravel/PHP) ---
+# --- Vẫn chặn thư viện (BẮT BUỘC) ---
+# Lý do: Docker sẽ tự cài cái này. Up lên sẽ gây xung đột Win/Mac/Linux
 /backend/vendor/
-/backend/storage/*.key
-
-# --- Bỏ qua thư viện Frontend (React/Node) ---
 /frontend/node_modules/
-/frontend/build/
-/frontend/dist/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# --- Bỏ qua thư mục IDE (VS Code, JetBrains) ---
-.idea/
-.vscode/
+# --- CÁC PHẦN ĐÃ BỎ CHẶN (Để up lên Git) ---
+# Đã xóa dòng /backend/.env
+# Đã xóa dòng /backend/database/*.sqlite
