@@ -1,7 +1,8 @@
-FROM node:20-alpine
+FROM node:20
+
 WORKDIR /app
-COPY package*.json ./
-# Cấu hình mirror để cài thư viện nhanh
-RUN npm config set registry https://registry.npmmirror.com/ && npm install
-COPY . .
+
+# Nếu chưa có package.json → tự tạo React App
+RUN test -f package.json || npx create-react-app .
+
 CMD ["npm", "start"]

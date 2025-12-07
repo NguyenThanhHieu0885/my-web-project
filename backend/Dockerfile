@@ -1,10 +1,50 @@
-# Sử dụng Image chính chủ của Composer
-# Lý do: Image này đã CÓ SẴN PHP, Extension MySQL, Git, Zip...
-# Bạn không cần chạy lệnh cài đặt nào thêm -> Tránh tuyệt đối lỗi mạng.
-FROM composer:2
+FROM php:8.2-apache
 
-# Đặt thư mục làm việc là /app (Mặc định của image này)
+RUN apt-get update && apt-get install -y \
+    unzip zip git libzip-dev nano default-mysql-client \
+    && docker-php-ext-install pdo_mysql zip
+
+RUN a2enmod rewrite
+
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
+
 WORKDIR /app
 
-# Lệnh giữ cho container chạy (Khởi động Laravel Server ở cổng 8000)
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- \
+    --install-dir=/usr/local/bin --filename=composer
+
+# Copy project into /app
+COPY src/ /app/
+
+# If empty → auto install Laravel
+RUN if [ ! -f "/app/artisan" ]; then \
+        composer create-project laravel/laravel /app --prefer-dist; \
+    fi
+
+# Ensure .env exists
+RUN if [ ! -f "/app/.env" ]; then \
+        cp /app/.env.example /app/.env; \
+    fi
+
+# Fix DB config
+RUN sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=mysql/" /app/.env && \
+    sed -i "s/DB_HOST=.*/DB_HOST=mysql/" /app/.env && \
+    sed -i "s/DB_PORT=.*/DB_PORT=3306/" /app/.env && \
+    sed -i "s/DB_DATABASE=.*/DB_DATABASE=laravel/" /app/.env && \
+    sed -i "s/DB_USERNAME=.*/DB_USERNAME=root/" /app/.env && \
+    sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=123456/" /app/.env
+
+# Install vendor
+RUN composer install --working-dir=/app --no-interaction
+
+# Copy app into Apache directory
+RUN rm -rf /var/www/html && cp -R /app /var/www/html
+
+# Permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+EXPOSE 80
+
+CMD ["apache2-foreground"]
